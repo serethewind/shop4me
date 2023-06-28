@@ -48,7 +48,6 @@ public class OrderServiceImpl implements OrderService {
          */
         //webClient using the uriBuilder.queryParam will construct the skuCode in this order
         //http://localhost:8082/apoi/inventory?skuCode=iphone-13&skuCode=iphone_14
-
         InventoryResponse[] inventoryResponseArray =
                 webClient.get()
                         .uri("http://localhost:8082/api/inventory",
@@ -57,15 +56,12 @@ public class OrderServiceImpl implements OrderService {
                         .bodyToMono(InventoryResponse[].class)
                         .block();
 
-//        boolean allProductsInStocks = Arrays.stream(inventoryResponseArray)
-//                .anyMatch(InventoryResponse::isInStock);
-
         boolean allProductsInStock;
         if (inventoryResponseArray.length == 0) {
             allProductsInStock = false; // Empty array, not all products are in stock
         } else {
-            allProductsInStock = Arrays.stream(inventoryResponseArray)
-                    .allMatch(InventoryResponse::isInStock); //returns true is there is a total match or false if none matches.
+            allProductsInStock = Arrays.stream(inventoryResponseArray).allMatch(InventoryResponse::isInStock);
+            //returns true is there is a total match or false if none matches.
         }
 
         if (allProductsInStock) {
