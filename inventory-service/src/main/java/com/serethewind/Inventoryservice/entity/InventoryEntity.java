@@ -1,16 +1,14 @@
 package com.serethewind.Inventoryservice.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "inventory_database")
+@Entity
+@Table(name = "inventory_database")
 @Builder
 public class InventoryEntity {
     @Id

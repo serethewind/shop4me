@@ -19,6 +19,6 @@ public class OrderEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String orderNumber;
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<OrderLineItems> orderLineItemsList = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
+    private List<OrderLineItems> orderLineItemsList;
 }
