@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class OrderServiceImpl implements OrderService {
     private OrderRepository orderRepository;
-    private WebClient webClient;
+    private WebClient.Builder webClientBuilder;
 
     @Override
     public void placeOrder(OrderRequest orderRequest) {
@@ -48,9 +48,10 @@ public class OrderServiceImpl implements OrderService {
          */
         //webClient using the uriBuilder.queryParam will construct the skuCode in this order
         //http://localhost:8082/apoi/inventory?skuCode=iphone-13&skuCode=iphone_14
+
         InventoryResponse[] inventoryResponseArray =
-                webClient.get()
-                        .uri("http://localhost:8082/api/inventory",
+                webClientBuilder.build().get()
+                        .uri("http://inventory-service/api/inventory",
                                 uriBuilder -> uriBuilder.queryParam("skuCode", skuCodes).build())
                         .retrieve()
                         .bodyToMono(InventoryResponse[].class)
