@@ -61,6 +61,7 @@ public class OrderServiceImpl implements OrderService {
         if (inventoryResponseArray.length == 0) {
             allProductsInStock = false; // Empty array, not all products are in stock
         } else {
+
             allProductsInStock = Arrays.stream(inventoryResponseArray).allMatch(InventoryResponse::isInStock);
             //returns true is there is a total match or false if none matches.
         }
