@@ -1,6 +1,7 @@
 package com.serethewind.orderservice.service;
 
 
+import com.serethewind.orderservice.dto.InventoryResponse;
 import com.serethewind.orderservice.dto.OrderRequest;
 import com.serethewind.orderservice.entity.OrderEntity;
 import com.serethewind.orderservice.entity.OrderLineItems;
@@ -36,20 +37,22 @@ public class OrderServiceImpl implements OrderService {
                 .orderLineItemsList(itemsList)
                 .build();
 
+        List<String> skuCodeList = newOrder.getOrderLineItemsList().stream().map(OrderLineItems::getSkuCode).toList();
+
         /**call the inventory service, and place order, if product is in stock.
          * the return type is a boolean which is a Mono.
          */
 
-       Boolean result = webClient.get()
-                .uri("http://localhost:8082/api/inventory")
+        Boolean result = webClient.get()
+                .uri("http://localhost:8082/api/inventory",
+                        uriBuilder -> uriBuilder.queryParam("skuCodes", skuCodeList).build())
                 .retrieve()
-                .bodyToMono(Boolean.class)
+                .bodyToMono(InventoryResponse[].class)
                 .block();
 
-        if (result){
+        if (result) {
             orderRepository.save(newOrder);
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Product is not in stock, please check back later.");
         }
 
