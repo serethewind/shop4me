@@ -6,6 +6,7 @@ import com.serethewind.orderservice.dto.OrderRequest;
 import com.serethewind.orderservice.entity.OrderEntity;
 import com.serethewind.orderservice.entity.OrderLineItems;
 import com.serethewind.orderservice.repository.OrderRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class OrderServiceImpl implements OrderService {
     private OrderRepository orderRepository;
     private WebClient.Builder webClientBuilder;
 
+    @CircuitBreaker(name = "inventory", fallbackMethod = "fallbackMethod")
     @Override
     public void placeOrder(OrderRequest orderRequest) {
         List<OrderLineItems> itemsList = orderRequest.getOrderLineItemsDtoList().stream().map(
@@ -72,5 +74,10 @@ public class OrderServiceImpl implements OrderService {
             throw new IllegalArgumentException("Product is not in stock, please try again later");
         }
 
+    }
+
+    @Override
+    public String fallbackMethod(OrderRequest orderRequest, RuntimeException runtimeException) {
+        return "Oops! Something went wrong, please order after some time!";
     }
 }
