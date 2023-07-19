@@ -32,10 +32,9 @@ public class OrderServiceImpl implements OrderService {
     private WebClient.Builder webClientBuilder;
 
     @CircuitBreaker(name = "inventory", fallbackMethod = "fallbackMethod")
-    @TimeLimiter(name = "inventory")
     @Override
     @Retry(name = "inventory")
-    public CompletionStage<String> placeOrder(OrderRequest orderRequest) {
+    public String placeOrder(OrderRequest orderRequest) {
         List<OrderLineItems> itemsList = orderRequest.getOrderLineItemsDtoList().stream().map(
                 (item) -> OrderLineItems.builder()
                         .skuCode(item.getSkuCode())
@@ -76,7 +75,8 @@ public class OrderServiceImpl implements OrderService {
 
         if (allProductsInStock) {
             orderRepository.save(newOrder);
-            return CompletableFuture.supplyAsync(() -> "Order Placed Successfully");
+             return "Order Placed Successfully";
+
         } else {
             throw new IllegalArgumentException("Product is not in stock, please try again later");
         }
@@ -84,7 +84,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public CompletionStage<String> fallbackMethod(OrderRequest orderRequest, Throwable throwable) {
-        return CompletableFuture.supplyAsync(() -> "Oops! Something went wrong, please order after some time!");
+    public String fallbackMethod(OrderRequest orderRequest, Throwable throwable) {
+        return "Oops! Something went wrong, please order after some time!";
     }
 }
