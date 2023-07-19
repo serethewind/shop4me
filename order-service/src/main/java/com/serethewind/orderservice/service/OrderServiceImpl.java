@@ -7,6 +7,8 @@ import com.serethewind.orderservice.entity.OrderEntity;
 import com.serethewind.orderservice.entity.OrderLineItems;
 import com.serethewind.orderservice.repository.OrderRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 
@@ -28,8 +32,10 @@ public class OrderServiceImpl implements OrderService {
     private WebClient.Builder webClientBuilder;
 
     @CircuitBreaker(name = "inventory", fallbackMethod = "fallbackMethod")
+    @TimeLimiter(name = "inventory")
     @Override
-    public void placeOrder(OrderRequest orderRequest) {
+    @Retry(name = "inventory")
+    public CompletionStage<String> placeOrder(OrderRequest orderRequest) {
         List<OrderLineItems> itemsList = orderRequest.getOrderLineItemsDtoList().stream().map(
                 (item) -> OrderLineItems.builder()
                         .skuCode(item.getSkuCode())
@@ -70,6 +76,7 @@ public class OrderServiceImpl implements OrderService {
 
         if (allProductsInStock) {
             orderRepository.save(newOrder);
+            return CompletableFuture.supplyAsync(() -> "Order Placed Successfully");
         } else {
             throw new IllegalArgumentException("Product is not in stock, please try again later");
         }
@@ -77,7 +84,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public String fallbackMethod(OrderRequest orderRequest, RuntimeException runtimeException) {
-        return "Oops! Something went wrong, please order after some time!";
+    public CompletionStage<String> fallbackMethod(OrderRequest orderRequest, Throwable throwable) {
+        return CompletableFuture.supplyAsync(() -> "Oops! Something went wrong, please order after some time!");
     }
 }

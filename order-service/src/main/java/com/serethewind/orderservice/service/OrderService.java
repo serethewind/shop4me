@@ -2,9 +2,12 @@ package com.serethewind.orderservice.service;
 
 import com.serethewind.orderservice.dto.OrderRequest;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+
 public interface OrderService {
 
-    void placeOrder(OrderRequest orderRequest);
+   CompletionStage<String> placeOrder(OrderRequest orderRequest);
 
-    String fallbackMethod(OrderRequest orderRequest, RuntimeException runtimeException);
+    CompletionStage<String> fallbackMethod(OrderRequest orderRequest, Throwable throwable);
 }
