@@ -7,7 +7,7 @@ import java.util.concurrent.CompletionStage;
 
 public interface OrderService {
 
-   CompletionStage<String> placeOrder(OrderRequest orderRequest);
+    String placeOrder(OrderRequest orderRequest);
 
-    CompletionStage<String> fallbackMethod(OrderRequest orderRequest, Throwable throwable);
+    String fallbackMethod(OrderRequest orderRequest, Throwable throwable);
 }
