@@ -6,11 +6,13 @@ import com.serethewind.orderservice.dto.OrderRequest;
 import com.serethewind.orderservice.entity.OrderEntity;
 import com.serethewind.orderservice.entity.OrderLineItems;
 import com.serethewind.orderservice.repository.OrderRepository;
+import com.serethewind.orderservice.utils.OrderPlacedEvent;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -30,6 +32,8 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
     private OrderRepository orderRepository;
     private WebClient.Builder webClientBuilder;
+
+    private KafkaTemplate<String, OrderPlacedEvent> kafkaTemplate;
 
     @CircuitBreaker(name = "inventory", fallbackMethod = "fallbackMethod")
     @Override
@@ -66,6 +70,7 @@ public class OrderServiceImpl implements OrderService {
         boolean allProductsInStock;
         if (inventoryResponseArray.length == 0) {
             allProductsInStock = false; // Empty array, not all products are in stock
+            kafkaTemplate.send("notificationTopic", OrderPlacedEvent.builder().orderNumber(newOrder.getOrderNumber()).build());
         } else {
 
             allProductsInStock = Arrays.stream(inventoryResponseArray).allMatch(InventoryResponse::isInStock);
