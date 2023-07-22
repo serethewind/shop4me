@@ -6,10 +6,8 @@ import com.serethewind.orderservice.dto.OrderRequest;
 import com.serethewind.orderservice.entity.OrderEntity;
 import com.serethewind.orderservice.entity.OrderLineItems;
 import com.serethewind.orderservice.repository.OrderRepository;
-import com.serethewind.orderservice.utils.OrderPlacedEvent;
+import com.serethewind.orderservice.event.OrderPlacedEvent;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import io.github.resilience4j.retry.annotation.Retry;
-import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -20,9 +18,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 
 
 @Service
