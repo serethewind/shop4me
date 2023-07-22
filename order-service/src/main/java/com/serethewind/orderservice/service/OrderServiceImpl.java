@@ -33,7 +33,6 @@ public class OrderServiceImpl implements OrderService {
 
     @CircuitBreaker(name = "inventory", fallbackMethod = "fallbackMethod")
     @Override
-    @Retry(name = "inventory")
     public String placeOrder(OrderRequest orderRequest) {
         List<OrderLineItems> itemsList = orderRequest.getOrderLineItemsDtoList().stream().map(
                 (item) -> OrderLineItems.builder()

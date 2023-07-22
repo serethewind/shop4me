@@ -21,11 +21,11 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     @Transactional(readOnly = true)
-    @SneakyThrows //Thread.sleep throws an exception that is caught by sneaky throw (don't use in production)
+//    @SneakyThrows //Thread.sleep throws an exception that is caught by sneaky throw (don't use in production)
     public List<InventoryResponse> isInStock(List<String> skuCode) {
-        log.info("Wait started");
-        Thread.sleep(30000); //Simulating a slow service by causing a 10-second sleep
-        log.info("Wait ended");
+//        log.info("Wait started");
+//        Thread.sleep(10000); //Simulating a slow service by causing a 10-second sleep
+//        log.info("Wait ended");
         return inventoryRepository.findBySkuCodeIn(skuCode).stream()
                 .map((inventory) ->
                         InventoryResponse.builder()
