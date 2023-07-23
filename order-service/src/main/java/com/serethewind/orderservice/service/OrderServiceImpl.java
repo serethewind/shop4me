@@ -65,7 +65,7 @@ public class OrderServiceImpl implements OrderService {
         boolean allProductsInStock;
         if (inventoryResponseArray.length == 0) {
             allProductsInStock = false; // Empty array, not all products are in stock
-            kafkaTemplate.send("notificationTopic", OrderPlacedEvent.builder().orderNumber(newOrder.getOrderNumber()).build());
+
         } else {
 
             allProductsInStock = Arrays.stream(inventoryResponseArray).allMatch(InventoryResponse::isInStock);
@@ -74,7 +74,8 @@ public class OrderServiceImpl implements OrderService {
 
         if (allProductsInStock) {
             orderRepository.save(newOrder);
-             return "Order Placed Successfully";
+            kafkaTemplate.send("notificationTopic", OrderPlacedEvent.builder().orderNumber(newOrder.getOrderNumber()).build());
+            return "Order Placed Successfully";
 
         } else {
             throw new IllegalArgumentException("Product is not in stock, please try again later");
